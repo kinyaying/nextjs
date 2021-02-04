@@ -1,21 +1,29 @@
-import nc from 'next-connect'
-import cors from 'cors'
-const remoteServerUrl = 'https://kaifa.baidu.com/'
-const config = 
-const handler = nc()
-  // use connect based middleware
-  .use(cors())
-  .post(async (req, res) => {
-    const response = await fetch(remoteServerUrl, config)
-    res.json(response)
+const { createProxyMiddleware } = require('http-proxy-middleware')
+
+// restream parsed body before proxying
+var restream = function (proxyRes, req, res, options) {
+  proxyRes.headers['x-added'] = 'foobar'
+  proxyRes.headers['Access-Control-Allow-Origin'] = '*'
+  proxyRes.headers['Access-Control-Allow-Headers'] = '*'
+  proxyRes.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
+}
+
+const apiProxy = createProxyMiddleware({
+  target: 'https://kaifa.baidu.com/',
+  changeOrigin: true,
+  pathRewrite: { '^/api/baidukaifa': '/rest/v1/search' },
+  secure: false,
+  onProxyRes: restream,
+})
+
+module.exports = function (req, res) {
+  apiProxy(req, res, (result) => {
+    console.log('result:', result)
+    if (result instanceof Error) {
+      throw result
+    }
+    throw new Error(
+      `Request '${req.url}' is not proxied! We should never reach here!`
+    )
   })
-
-
-  // const apiProxy = createProxyMiddleware({
-//     target: 'https://kaifa.baidu.com/',
-//     changeOrigin: true,
-//     pathRewrite: { '^/api/baidukaifa': '/rest/v1/search' },
-//     secure: false,
-// });
-
-export default handler
+}
