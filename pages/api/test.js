@@ -11,7 +11,7 @@ var restream = function (proxyRes, req, res, options) {
 const apiProxy = createProxyMiddleware({
   target: 'https://kaifa.baidu.com/',
   changeOrigin: true,
-  pathRewrite: { '^/api/baidukaifa': '/rest/v1/search' },
+  pathRewrite: { '^/api/test': '/rest/v1/search' },
   secure: false,
   onProxyRes: restream,
 })
