@@ -2,7 +2,6 @@ const { createProxyMiddleware } = require('http-proxy-middleware')
 
 // restream parsed body before proxying
 var restream = function (proxyRes, req, res, options) {
-  proxyRes.headers['x-added'] = 'foobar'
   proxyRes.headers['Access-Control-Allow-Origin'] = '*'
   proxyRes.headers['Access-Control-Allow-Headers'] = '*'
   proxyRes.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, OPTIONS'
